@@ -5,7 +5,7 @@ import javax.persistence.GeneratedValue
 import javax.persistence.Id
 
 @Entity
-class Categoria(val nome: String) {
+class Categoria(var nome: String) {
     @Id
     @GeneratedValue
     var id: Long? = null
