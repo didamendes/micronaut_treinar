@@ -11,13 +11,13 @@ import javax.persistence.ManyToOne
 
 @Entity
 class Livro(
-    val titulo: String,
-    val resumo: String,
-    val sumario: String,
-    val preco: BigDecimal,
-    val paginas: Int,
-    val isbn: String,
-    val dataPublicacao: LocalDate,
+    var titulo: String,
+    var resumo: String,
+    var sumario: String,
+    var preco: BigDecimal,
+    var paginas: Int,
+    var isbn: String,
+    var dataPublicacao: LocalDate,
     @ManyToOne val categoria: Categoria,
     @ManyToOne val autor: Autor
 ) {

@@ -3,12 +3,10 @@ package br.com.diogomendes.livros
 import br.com.diogomendes.autores.AutorRepository
 import br.com.diogomendes.categorias.CategoriaRepository
 import io.micronaut.http.HttpResponse
-import io.micronaut.http.annotation.Body
-import io.micronaut.http.annotation.Controller
-import io.micronaut.http.annotation.Get
-import io.micronaut.http.annotation.Post
+import io.micronaut.http.annotation.*
 import io.micronaut.http.uri.UriBuilder
 import io.micronaut.validation.Validated
+import javax.transaction.Transactional
 import javax.validation.Valid
 
 @Validated
@@ -39,9 +37,48 @@ class LivroController(
 
         val livro: Livro = livroRequest.paraLivro(autor.get(), categoria.get())
         livroRepository.save(livro)
-        UriBuilder.of("/livros/{id}").expand(mutableMapOf(Pair("id", livro.id)))
+        val uri = UriBuilder.of("/livros/{id}").expand(mutableMapOf(Pair("id", livro.id)))
 
-        return HttpResponse.created(LivroResponse(livro), )
+        return HttpResponse.created(LivroResponse(livro), uri)
+    }
+
+    @Put(uri = "/{id}")
+    @Transactional
+    fun alterar(
+        @PathVariable id: Long,
+        @Body @Valid alterarLivroRequest: AlterarLivroRequest
+    ): HttpResponse<Any> {
+        val livroOptional = livroRepository.findById(id)
+
+        if (livroOptional.isEmpty) {
+            return HttpResponse.notFound()
+        }
+
+        livroOptional.get().apply {
+            titulo = alterarLivroRequest.titulo
+            resumo = alterarLivroRequest.resumo
+            sumario = alterarLivroRequest.sumario
+            preco = alterarLivroRequest.preco
+            paginas = alterarLivroRequest.paginas
+            isbn = alterarLivroRequest.isbn
+            dataPublicacao = alterarLivroRequest.dataPublicacao
+        }
+
+        return HttpResponse.ok(LivroResponse(livroOptional.get()))
+    }
+
+    @Delete(uri = "/{id}")
+    @Transactional
+    fun remover(@PathVariable id: Long): HttpResponse<Any> {
+        val livroOptional = livroRepository.findById(id)
+
+        if (livroOptional.isEmpty) {
+            return HttpResponse.notFound()
+        }
+
+        livroRepository.delete(livroOptional.get())
+
+        return HttpResponse.noContent()
     }
 
 }
